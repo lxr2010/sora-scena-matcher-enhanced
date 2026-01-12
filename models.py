@@ -122,6 +122,36 @@ class RemakeConversation(BaseModel):
     def __iter__(self):
         return iter(self.lines)
 
+class Script :
+  def __init__(self, file:str) -> None:
+    with open(file, "r") as f:
+      adapter = TypeAdapter(list[Line])
+      self.lines = adapter.validate_json(f.read())
+    self.texts = [line.text for line in self.lines]
+  def __len__(self) -> int:
+    return len(self.lines)
+  def __getitem__(self, index: int) -> Line:
+    return self.lines[index]
+  def __iter__(self):
+    return iter(self.lines)
+
+class RemakeScript :
+  NEW_ID_START=50001
+  lines: list[RemakeLine]
+  def __init__(self, file:str) -> None:
+    self.lines = []
+    with open(file, "r") as f:
+        commands: list[dict] = json.load(f)
+        for i, entry in enumerate(commands):
+            remake_line = RemakeLine(id=self.NEW_ID_START + i, **entry)
+            self.lines.append(remake_line)
+    self.texts = [line.text for line in self.lines]
+  def __len__(self) -> int:
+    return len(self.lines)
+  def __getitem__(self, index: int) -> RemakeLine:
+    return self.lines[index]
+  def __iter__(self):
+    return iter(self.lines)
     
 
 def test_lines():
